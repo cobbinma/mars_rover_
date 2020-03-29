@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 pub struct Rover {
     bearing: Bearing,
     coordinates: Coordinates,
@@ -6,11 +6,7 @@ pub struct Rover {
 
 impl Rover {
     pub fn new(x_coordinate: i64, y_coordinate:i64, bearing: Bearing) -> Rover {
-        Rover{ bearing, coordinates: Coordinates{x_coordinate, y_coordinate}}
-    }
-
-    pub fn get_coordinates(&self) -> &Coordinates {
-        &self.coordinates
+        Rover{bearing, coordinates: Coordinates{x_coordinate, y_coordinate}}
     }
 
     pub fn move_north(&mut self) {
@@ -48,7 +44,7 @@ impl Rover {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 pub enum Bearing {
     North,
     East,
@@ -56,26 +52,30 @@ pub enum Bearing {
     West,
 }
 
-#[derive(Debug, PartialEq)]
-struct Coordinates {
+#[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
+pub struct Coordinates {
     x_coordinate: i64,
     y_coordinate: i64,
 }
 
 impl Coordinates {
-    fn north(&mut self) {
+    pub fn new(x_coordinate: i64, y_coordinate: i64) -> Coordinates {
+        Coordinates{x_coordinate, y_coordinate}
+    }
+
+    pub fn north(&mut self) {
         self.y_coordinate += 1;
     }
 
-    fn south(&mut self) {
+    pub fn south(&mut self) {
         self.y_coordinate -= 1;
     }
 
-    fn east(&mut self) {
+    pub fn east(&mut self) {
         self.x_coordinate += 1;
     }
 
-    fn west(&mut self) {
+    pub fn west(&mut self) {
         self.x_coordinate -= 1;
     }
 }
