@@ -28,15 +28,35 @@ impl Plateau {
         }
     }
 
+    fn is_move_inbounds(&self, coordinates: &rover::Coordinates) -> bool {
+        if coordinates.x_coordinate < 0 || coordinates.x_coordinate > self.max_x_coordinate {
+            false
+        } else if coordinates.y_coordinate < 0 || coordinates.y_coordinate > self.max_y_coordinate {
+            false
+        } else {
+            true
+        }
+
+    }
+
+    fn is_move_valid(&self, coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
+        if !self.can_rover_move(coordinates) {
+            Err(Box::new(CollisionError))
+        } else if !self.is_move_inbounds(coordinates) {
+            Err(Box::new(OutOfBounds))
+        } else {
+            Ok(())
+        }
+    }
+
     fn can_rover_move(&self, coordinates: &rover::Coordinates) -> bool {
         !self.rovers.contains(coordinates)
     }
 
     pub fn move_rover(&mut self, old_coordinates: &rover::Coordinates,
                       new_coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
-        if !self.can_rover_move(new_coordinates) {
-            Err(Box::new(CollisionError))
-        } else if !self.rovers.remove(old_coordinates) {
+        self.is_move_valid(new_coordinates)?;
+        if !self.rovers.remove(old_coordinates) {
             Err(Box::new(NotFound))
         } else {
             self.rovers.insert(new_coordinates.clone());
@@ -88,6 +108,21 @@ impl error::Error for NotFound {
 impl fmt::Display for NotFound {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "rover was not found on plateau")
+    }
+}
+
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct OutOfBounds;
+
+impl error::Error for OutOfBounds {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        None
+    }
+}
+
+impl fmt::Display for OutOfBounds {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "move is out of bounds")
     }
 }
 
@@ -145,6 +180,7 @@ mod tests {
         );
     }
 
+    #[test]
     fn rover_cannot_move() {
         let mut plateau = Plateau::new(5, 5);
 
@@ -160,5 +196,98 @@ mod tests {
             false,
             can_move
         );
+    }
+
+    #[test]
+    fn move_rover() {
+        let mut plateau = Plateau::new(5, 5);
+
+        let old_coordinates = rover::Coordinates::new(1, 1);
+        let new_coordinates = rover::Coordinates::new(0, 1);
+
+        if let Err(e) = plateau.drop_rover(old_coordinates) {
+            panic!("should be able to drop rover")
+        };
+
+        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+            panic!("should have been able to move rover")
+        }
+
+        assert_eq!(
+            vec![new_coordinates],
+            plateau.list_rovers()
+        );
+    }
+
+    fn move_rover_cause_collsion() {
+        let mut plateau = Plateau::new(5, 5);
+
+        let another_rover_coordinates = rover::Coordinates::new(0, 1);
+
+        let old_coordinates = rover::Coordinates::new(1, 1);
+        let new_coordinates = rover::Coordinates::new(0, 1);
+
+        if let Err(e) = plateau.drop_rover(another_rover_coordinates) {
+            panic!("should be able to drop rover")
+        };
+
+        if let Err(e) = plateau.drop_rover(old_coordinates) {
+            panic!("should be able to drop rover")
+        };
+
+        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+            if let None = e.source() {
+                panic!("Should have returned collision error")
+            }
+        }
+
+    }
+
+    fn move_rover_not_found() {
+        let mut plateau = Plateau::new(5, 5);
+
+        let old_coordinates = rover::Coordinates::new(1, 1);
+        let new_coordinates = rover::Coordinates::new(0, 1);
+
+        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+            if let None = e.source() {
+                panic!("Should have returned not found error")
+            }
+        }
+
+    }
+
+    fn move_rover_out_of_bounds_up() {
+        let mut plateau = Plateau::new(5, 5);
+
+        let old_coordinates = rover::Coordinates::new(5, 5);
+        let new_coordinates = rover::Coordinates::new(5, 6);
+
+        if let Err(e) = plateau.drop_rover(old_coordinates) {
+            panic!("should be able to drop rover")
+        };
+
+        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+            if let None = e.source() {
+                panic!("Should have returned out of bounds")
+            }
+        }
+    }
+
+    fn move_rover_out_of_bounds_right() {
+        let mut plateau = Plateau::new(5, 5);
+
+        let old_coordinates = rover::Coordinates::new(5, 5);
+        let new_coordinates = rover::Coordinates::new(6, 5);
+
+        if let Err(e) = plateau.drop_rover(old_coordinates) {
+            panic!("should be able to drop rover")
+        };
+
+        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+            if let None = e.source() {
+                panic!("Should have returned out of bounds")
+            }
+        }
     }
 }

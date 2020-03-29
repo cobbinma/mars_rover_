@@ -5,7 +5,7 @@ pub struct Rover {
 }
 
 impl Rover {
-    pub fn new(x_coordinate: i64, y_coordinate:i64, bearing: Bearing) -> Rover {
+    pub fn new(x_coordinate: u64, y_coordinate:u64, bearing: Bearing) -> Rover {
         Rover{bearing, coordinates: Coordinates{x_coordinate, y_coordinate}}
     }
 
@@ -58,12 +58,12 @@ pub enum Bearing {
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub struct Coordinates {
-    pub x_coordinate: i64,
-    pub y_coordinate: i64,
+    pub x_coordinate: u64,
+    pub y_coordinate: u64,
 }
 
 impl Coordinates {
-    pub fn new(x_coordinate: i64, y_coordinate: i64) -> Coordinates {
+    pub fn new(x_coordinate: u64, y_coordinate: u64) -> Coordinates {
         Coordinates{x_coordinate, y_coordinate}
     }
 
