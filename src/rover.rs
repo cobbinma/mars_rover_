@@ -9,6 +9,10 @@ impl Rover {
         Rover{bearing, coordinates: Coordinates{x_coordinate, y_coordinate}}
     }
 
+    pub fn get_coordinates(&self) -> Coordinates {
+        self.coordinates
+    }
+
     pub fn move_north(&mut self) {
         self.coordinates.north();
     }
@@ -54,8 +58,8 @@ pub enum Bearing {
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub struct Coordinates {
-    x_coordinate: i64,
-    y_coordinate: i64,
+    pub x_coordinate: i64,
+    pub y_coordinate: i64,
 }
 
 impl Coordinates {
