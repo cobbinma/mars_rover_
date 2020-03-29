@@ -1,7 +1,7 @@
 [package]
 name = "mars_rover"
 version = "0.1.0"
-authors = ["matthewcobbing <matthewc@nandos.co.uk>"]
+authors = ["matthewcobbing <cobbinma@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
