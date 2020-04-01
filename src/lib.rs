@@ -1,7 +1,7 @@
 use std::error;
 use core::fmt;
 use std::error::Error;
-use crate::plateau::Plateau;
+use plateau::Plateau;
 
 pub mod rover;
 pub mod plateau;
@@ -22,7 +22,7 @@ pub fn deploy_rovers(config: Config) -> Result<Vec<rover::Rover>, Box<dyn Error>
                 Command::MoveForward => {
                     let planned_coordinates = rover.get_planned_move();
                     plateau.can_rover_move(&planned_coordinates)?;
-                    plateau.move_rover(&planned_coordinates, rover.get_coordinates())?;
+                    plateau.move_rover(rover.get_coordinates(), &planned_coordinates)?;
                     rover.move_rover();
                 },
             }
