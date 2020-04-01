@@ -26,7 +26,7 @@ impl RoverInstructions {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 enum Command {
     MoveForward,
     RightTurn,
@@ -53,7 +53,7 @@ impl Config {
     }
 }
 
-pub fn parse_bearing(c: char) -> Result<rover::Bearing, ParseError> {
+fn parse_bearing(c: char) -> Result<rover::Bearing, ParseError> {
     match c {
     'N' => Ok(rover::Bearing::North),
     'E' => Ok(rover::Bearing::East),
@@ -108,6 +108,7 @@ impl Error for ParseError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rover::Bearing;
 
     #[test]
     fn parse_mandatory_args() {
@@ -123,6 +124,41 @@ mod tests {
         assert_eq!(
             5,
             config.max_y_grid
+        );
+
+        assert_eq!(
+            3,
+            config.instructions[0].starting_x
+        );
+
+        assert_eq!(
+            3,
+            config.instructions[0].starting_y
+        );
+
+        assert_eq!(
+            Bearing::North,
+            config.instructions[0].bearing
+        );
+
+        assert_eq!(
+            Command::MoveForward,
+            config.instructions[0].commands[0]
+        );
+
+        assert_eq!(
+            Command::RightTurn,
+            config.instructions[0].commands[1]
+        );
+
+        assert_eq!(
+            Command::LeftTurn,
+            config.instructions[0].commands[2]
+        );
+
+        assert_eq!(
+            Command::MoveForward,
+            config.instructions[0].commands[3]
         );
 
     }
