@@ -38,7 +38,7 @@ impl Rover {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Clone)]
 pub enum Bearing {
     North,
     East,

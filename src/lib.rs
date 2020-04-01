@@ -5,14 +5,14 @@ use std::error::Error;
 pub mod rover;
 pub mod plateau;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub struct Config {
     max_x_grid: u64,
     max_y_grid: u64,
     instructions: Vec<RoverInstructions>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 struct RoverInstructions {
     starting_x: u64,
     starting_y: u64,
@@ -42,14 +42,18 @@ impl Config {
         let max_x_grid = args[1].parse::<u64>()?;
         let max_y_grid = args[2].parse::<u64>()?;
 
-        let starting_x = args[3].parse::<u64>()?;
-        let starting_y = args[4].parse::<u64>()?;
+        let mut instructions = vec![];
 
-        let bearing = parse_bearing(args[5].chars().next()
-            .ok_or(Box::new(ParseError::new("could not parse bearing")))?)?;
-        let commands = parse_commands(args[6].chars().collect())?;
+        for i in (3..args.len()).step_by(4) {
+            let starting_x = args[i].parse::<u64>()?;
+            let starting_y = args[i+1].parse::<u64>()?;
+            let bearing = parse_bearing(args[i+2].chars().next()
+                .ok_or(Box::new(ParseError::new("could not parse bearing")))?)?;
+            let commands = parse_commands(args[i+3].chars().collect())?;
+            instructions.push(RoverInstructions::new(starting_x, starting_y, bearing, commands))
+        }
 
-        Ok(Config{ max_x_grid, max_y_grid, instructions: vec![RoverInstructions::new(starting_x, starting_y, bearing, commands)] })
+        Ok(Config{ max_x_grid, max_y_grid, instructions })
     }
 }
 
@@ -111,56 +115,26 @@ mod tests {
     use crate::rover::Bearing;
 
     #[test]
-    fn parse_mandatory_args() {
+    fn parse_one_rover() {
         let args = vec!["test", "5", "5", "3", "3", "N", "MRLM"];
+
+        let expected = Config{
+            max_x_grid: 5,
+            max_y_grid: 5,
+            instructions: vec![RoverInstructions{
+                starting_x: 3,
+                starting_y: 3,
+                bearing: Bearing::North,
+                commands: vec![Command::MoveForward, Command::RightTurn, Command::LeftTurn, Command::MoveForward]
+            }]
+        };
 
         let config = Config::new(args).expect("should create config");
 
         assert_eq!(
-            5,
-            config.max_x_grid
+            expected,
+            config
         );
-
-        assert_eq!(
-            5,
-            config.max_y_grid
-        );
-
-        assert_eq!(
-            3,
-            config.instructions[0].starting_x
-        );
-
-        assert_eq!(
-            3,
-            config.instructions[0].starting_y
-        );
-
-        assert_eq!(
-            Bearing::North,
-            config.instructions[0].bearing
-        );
-
-        assert_eq!(
-            Command::MoveForward,
-            config.instructions[0].commands[0]
-        );
-
-        assert_eq!(
-            Command::RightTurn,
-            config.instructions[0].commands[1]
-        );
-
-        assert_eq!(
-            Command::LeftTurn,
-            config.instructions[0].commands[2]
-        );
-
-        assert_eq!(
-            Command::MoveForward,
-            config.instructions[0].commands[3]
-        );
-
     }
 
 }
