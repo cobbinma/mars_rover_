@@ -137,4 +137,32 @@ mod tests {
         );
     }
 
+    #[test]
+    fn parse_multiple_rovers() {
+        let args = vec!["test", "5", "5", "3", "3", "N", "MRLM", "3", "3", "N", "MRLM"];
+
+        let expected = Config{
+            max_x_grid: 5,
+            max_y_grid: 5,
+            instructions: vec![RoverInstructions{
+                starting_x: 3,
+                starting_y: 3,
+                bearing: Bearing::North,
+                commands: vec![Command::MoveForward, Command::RightTurn, Command::LeftTurn, Command::MoveForward]
+            }, RoverInstructions{
+                starting_x: 3,
+                starting_y: 3,
+                bearing: Bearing::North,
+                commands: vec![Command::MoveForward, Command::RightTurn, Command::LeftTurn, Command::MoveForward]
+            }]
+        };
+
+        let config = Config::new(args).expect("should create config");
+
+        assert_eq!(
+            expected,
+            config
+        );
+    }
+
 }
