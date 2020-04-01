@@ -19,6 +19,10 @@ impl Rover {
         planned_coordinates
     }
 
+    pub fn get_coordinates(&self) -> &Coordinates {
+        &self.coordinates
+    }
+
     pub fn turn_right(&mut self) {
         match self.bearing {
             Bearing::North => self.bearing = Bearing::East,
@@ -38,7 +42,7 @@ impl Rover {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Clone)]
+#[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Clone, Copy)]
 pub enum Bearing {
     North,
     East,

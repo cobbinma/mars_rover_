@@ -40,17 +40,19 @@ impl Plateau {
     }
 
     fn is_move_valid(&self, coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
-        if !self.can_rover_move(coordinates) {
-            Err(Box::new(CollisionError))
-        } else if !self.is_move_inbounds(coordinates) {
+        self.can_rover_move(coordinates)?;
+        if !self.is_move_inbounds(coordinates) {
             Err(Box::new(OutOfBounds))
         } else {
             Ok(())
         }
     }
 
-    fn can_rover_move(&self, coordinates: &rover::Coordinates) -> bool {
-        !self.rovers.contains(coordinates)
+    pub fn can_rover_move(&self, coordinates: &rover::Coordinates) -> Result<(), CollisionError> {
+        if !self.rovers.contains(coordinates) {
+            return Ok(())
+        }
+        Err(CollisionError)
     }
 
     pub fn move_rover(&mut self, old_coordinates: &rover::Coordinates,
@@ -175,7 +177,7 @@ mod tests {
         let can_move = plateau.can_rover_move(&coordinates);
 
         assert_eq!(
-            true,
+            Ok(()),
             can_move
         );
     }
@@ -192,9 +194,8 @@ mod tests {
 
         let can_move = plateau.can_rover_move(&coordinates);
 
-        assert_eq!(
-            false,
-            can_move
+        assert!(
+            can_move.is_err()
         );
     }
 

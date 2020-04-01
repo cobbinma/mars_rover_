@@ -1,9 +1,38 @@
 use std::error;
 use core::fmt;
 use std::error::Error;
+use crate::plateau::Plateau;
 
 pub mod rover;
 pub mod plateau;
+
+pub fn deploy_rovers(config: Config) -> Result<Vec<rover::Rover>, Box<dyn Error>> {
+    let mut plateau = plateau::Plateau::new(config.max_x_grid, config.max_y_grid);
+
+    let mut rovers = vec![];
+
+    for instruction in config.instructions.iter() {
+        let mut rover = rover::Rover::new(instruction.starting_x, instruction.starting_y, instruction.bearing);
+        plateau.drop_rover(rover::Coordinates::new(instruction.starting_x, instruction.starting_y))?;
+
+        for command in &instruction.commands {
+            match command {
+                Command::LeftTurn => rover.turn_left(),
+                Command::RightTurn => rover.turn_right(),
+                Command::MoveForward => {
+                    let planned_coordinates = rover.get_planned_move();
+                    plateau.can_rover_move(&planned_coordinates)?;
+                    plateau.move_rover(&planned_coordinates, rover.get_coordinates())?;
+                    rover.move_rover();
+                },
+            }
+        }
+
+        rovers.push(rover);
+    };
+
+    Ok(rovers)
+}
 
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub struct Config {
@@ -11,28 +40,6 @@ pub struct Config {
     max_y_grid: u64,
     instructions: Vec<RoverInstructions>,
 }
-
-#[derive(Debug, Clone, PartialOrd, PartialEq)]
-struct RoverInstructions {
-    starting_x: u64,
-    starting_y: u64,
-    bearing:    rover::Bearing,
-    commands:   Vec<Command>,
-}
-
-impl RoverInstructions {
-    fn new(starting_x: u64, starting_y: u64, bearing: rover::Bearing, commands:Vec <Command>) -> RoverInstructions {
-        RoverInstructions{starting_x, starting_y, bearing, commands}
-    }
-}
-
-#[derive(Debug, Clone, PartialOrd, PartialEq)]
-enum Command {
-    MoveForward,
-    RightTurn,
-    LeftTurn,
-}
-
 
 impl Config {
     pub fn new(args: Vec<&str>) -> Result<Config, Box<dyn Error>> {
@@ -55,6 +62,27 @@ impl Config {
 
         Ok(Config{ max_x_grid, max_y_grid, instructions })
     }
+}
+
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+struct RoverInstructions {
+    starting_x: u64,
+    starting_y: u64,
+    bearing:    rover::Bearing,
+    commands:   Vec<Command>,
+}
+
+impl RoverInstructions {
+    fn new(starting_x: u64, starting_y: u64, bearing: rover::Bearing, commands:Vec <Command>) -> RoverInstructions {
+        RoverInstructions{starting_x, starting_y, bearing, commands}
+    }
+}
+
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+enum Command {
+    MoveForward,
+    RightTurn,
+    LeftTurn,
 }
 
 fn parse_bearing(c: char) -> Result<rover::Bearing, ParseError> {
