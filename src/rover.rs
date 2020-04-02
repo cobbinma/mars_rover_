@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn get_planned_move() {
-        let mut rover = Rover::new(0, 0, Bearing::North);
+        let rover = Rover::new(0, 0, Bearing::North);
 
         let planned_coordinates = rover.get_planned_move();
 
