@@ -53,7 +53,7 @@ impl Config {
             let starting_x = args[i].parse::<u64>()?;
             let starting_y = args[i+1].parse::<u64>()?;
             let bearing = parse_bearing(args[i+2].chars().next()
-                .ok_or(Box::new(ParseError::new("could not parse bearing")))?)?;
+                .ok_or_else(|| Box::new(ParseError::new("could not parse bearing")))?)?;
             let commands = parse_commands(args[i+3].chars().collect())?;
             instructions.push(RoverInstructions::new(starting_x, starting_y, bearing, commands))
         }
@@ -94,16 +94,16 @@ fn parse_bearing(c: char) -> Result<rover::Bearing, ParseError> {
 }
 
 fn parse_commands(chars: Vec<char>) -> Result<Vec<Command>, ParseError> {
-    if chars.len() < 1 {
+    if chars.is_empty() {
         return Err(ParseError::new("can't parse empty commands"))
     };
-    let commands = chars.iter().map(map_command)
+    let commands = chars.into_iter().map(map_command)
         .map(|x| x.unwrap()).collect();
     Ok(commands)
 }
 
 
-fn map_command(c: &char) -> Result<Command, ParseError> {
+fn map_command(c: char) -> Result<Command, ParseError> {
     match c {
         'M' => Ok(Command::MoveForward),
         'R' => Ok(Command::RightTurn),

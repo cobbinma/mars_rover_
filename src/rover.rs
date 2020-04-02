@@ -10,12 +10,12 @@ impl Rover {
     }
 
     pub fn move_rover(&mut self) {
-        self.coordinates.move_forward(&self.bearing);
+        self.coordinates.move_forward(self.bearing);
     }
 
     pub fn get_planned_move(&self) -> Coordinates {
         let mut planned_coordinates = self.coordinates;
-        planned_coordinates.move_forward(&self.bearing);
+        planned_coordinates.move_forward(self.bearing);
         planned_coordinates
     }
 
@@ -71,7 +71,7 @@ impl Coordinates {
         Coordinates{x_coordinate, y_coordinate}
     }
 
-    pub fn move_forward(&mut self, bearing: &Bearing) {
+    pub fn move_forward(&mut self, bearing: Bearing) {
         match bearing {
             Bearing::North => self.y_coordinate += 1,
             Bearing::South => self.y_coordinate -= 1,
