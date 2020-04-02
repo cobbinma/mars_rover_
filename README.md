@@ -2,6 +2,9 @@
 
 This is my rust solution to the mars rover technical challenge.
 
+![](https://travis-ci.com/cobbinma/mars_rover_.svg?branch=master)
+
+
 ## Instructions
 
 From the root directory run `cargo run` followed by the program arguments.
