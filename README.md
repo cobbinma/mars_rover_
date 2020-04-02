@@ -1,6 +1,6 @@
 # MARS_ROVER_
 
-This is my solution to the mars rover technical challenge.
+This is my rust solution to the mars rover technical challenge.
 
 ## Instructions
 
