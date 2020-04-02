@@ -40,6 +40,16 @@ impl Rover {
             Bearing::West => self.bearing = Bearing::South,
         }
     }
+
+    pub fn print(&self) -> String {
+        let b = match self.bearing {
+            Bearing::North => "N",
+            Bearing::East => "E",
+            Bearing::South => "S",
+            Bearing::West => "W"
+        };
+        format!("{} {} {}", self.coordinates.x_coordinate, self.coordinates.y_coordinate, b)
+    }
 }
 
 #[derive(Hash, Eq, PartialEq, PartialOrd, Debug, Clone, Copy)]

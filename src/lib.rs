@@ -1,7 +1,5 @@
-use std::error;
 use core::fmt;
 use std::error::Error;
-use plateau::Plateau;
 
 pub mod rover;
 pub mod plateau;
@@ -22,7 +20,7 @@ pub fn deploy_rovers(config: Config) -> Result<Vec<rover::Rover>, Box<dyn Error>
                 Command::MoveForward => {
                     let planned_coordinates = rover.get_planned_move();
                     plateau.can_rover_move(&planned_coordinates)?;
-                    plateau.move_rover(rover.get_coordinates(), &planned_coordinates)?;
+                    plateau.update_rover_position(rover.get_coordinates(), &planned_coordinates)?;
                     rover.move_rover();
                 },
             }
@@ -42,7 +40,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: Vec<&str>) -> Result<Config, Box<dyn Error>> {
+    pub fn new(args: &[String]) -> Result<Config, Box<dyn Error>> {
         if args.len() < 7 {
             return Err(Box::new(ParseError::new("can't have less than 6 arguments")))
         };
@@ -144,7 +142,8 @@ mod tests {
 
     #[test]
     fn parse_one_rover() {
-        let args = vec!["test", "5", "5", "3", "3", "N", "MRLM"];
+        let args = vec!["test".to_string(), "5".to_string(), "5".to_string(), "3".to_string(),
+                        "3".to_string(), "N".to_string(), "MRLM".to_string()];
 
         let expected = Config{
             max_x_grid: 5,
@@ -157,7 +156,7 @@ mod tests {
             }]
         };
 
-        let config = Config::new(args).expect("should create config");
+        let config = Config::new(&args).expect("should create config");
 
         assert_eq!(
             expected,
@@ -167,7 +166,9 @@ mod tests {
 
     #[test]
     fn parse_multiple_rovers() {
-        let args = vec!["test", "5", "5", "3", "3", "N", "MRLM", "3", "3", "N", "MRLM"];
+        let args = vec!["test".to_string(), "5".to_string(), "5".to_string(), "3".to_string(),
+                        "3".to_string(), "N".to_string(), "MRLM".to_string(), "3".to_string(),
+                        "3".to_string(), "N".to_string(), "MRLM".to_string()];
 
         let expected = Config{
             max_x_grid: 5,
@@ -185,7 +186,7 @@ mod tests {
             }]
         };
 
-        let config = Config::new(args).expect("should create config");
+        let config = Config::new(&args).expect("should create config");
 
         assert_eq!(
             expected,

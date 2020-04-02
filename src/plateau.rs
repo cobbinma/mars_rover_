@@ -29,13 +29,10 @@ impl Plateau {
     }
 
     fn is_move_inbounds(&self, coordinates: &rover::Coordinates) -> bool {
-        if coordinates.x_coordinate < 0 || coordinates.x_coordinate > self.max_x_coordinate {
-            false
-        } else if coordinates.y_coordinate < 0 || coordinates.y_coordinate > self.max_y_coordinate {
-            false
-        } else {
-            true
+        if coordinates.x_coordinate > self.max_x_coordinate || coordinates.y_coordinate > self.max_y_coordinate {
+            return false
         }
+        true
 
     }
 
@@ -55,8 +52,8 @@ impl Plateau {
         Err(CollisionError)
     }
 
-    pub fn move_rover(&mut self, old_coordinates: &rover::Coordinates,
-                      new_coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
+    pub fn update_rover_position(&mut self, old_coordinates: &rover::Coordinates,
+                                 new_coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
         self.is_move_valid(new_coordinates)?;
         if !self.rovers.remove(old_coordinates) {
             Err(Box::new(NotFound))
@@ -210,7 +207,7 @@ mod tests {
             panic!("should be able to drop rover")
         };
 
-        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+        if let Err(e) = plateau.update_rover_position(&old_coordinates, &new_coordinates) {
             panic!("should have been able to move rover")
         }
 
@@ -236,7 +233,7 @@ mod tests {
             panic!("should be able to drop rover")
         };
 
-        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+        if let Err(e) = plateau.update_rover_position(&old_coordinates, &new_coordinates) {
             if let None = e.source() {
                 panic!("Should have returned collision error")
             }
@@ -250,7 +247,7 @@ mod tests {
         let old_coordinates = rover::Coordinates::new(1, 1);
         let new_coordinates = rover::Coordinates::new(0, 1);
 
-        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+        if let Err(e) = plateau.update_rover_position(&old_coordinates, &new_coordinates) {
             if let None = e.source() {
                 panic!("Should have returned not found error")
             }
@@ -268,7 +265,7 @@ mod tests {
             panic!("should be able to drop rover")
         };
 
-        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+        if let Err(e) = plateau.update_rover_position(&old_coordinates, &new_coordinates) {
             if let None = e.source() {
                 panic!("Should have returned out of bounds")
             }
@@ -285,7 +282,7 @@ mod tests {
             panic!("should be able to drop rover")
         };
 
-        if let Err(e) = plateau.move_rover(&old_coordinates, &new_coordinates) {
+        if let Err(e) = plateau.update_rover_position(&old_coordinates, &new_coordinates) {
             if let None = e.source() {
                 panic!("Should have returned out of bounds")
             }
