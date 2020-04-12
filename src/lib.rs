@@ -59,8 +59,8 @@ impl Config {
         let mut instructions = vec![];
 
         for i in (3..args.len()).step_by(4) {
-            let starting_x = args[i].parse::<u64>()?;
-            let starting_y = args[i + 1].parse::<u64>()?;
+            let starting_x = args[i].parse()?;
+            let starting_y = args[i + 1].parse()?;
             let bearing = parse_bearing(
                 args[i + 2]
                     .chars()
