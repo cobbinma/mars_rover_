@@ -24,6 +24,6 @@ fn main() {
     };
 
     for rover in rovers {
-        print!("{} ", rover.print());
+        print!("{} ", rover);
     }
 }

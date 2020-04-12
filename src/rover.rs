@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use core::fmt;
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub struct Rover {
@@ -48,17 +49,13 @@ impl Rover {
             Bearing::West => self.bearing = Bearing::South,
         }
     }
+}
 
-    pub fn print(&self) -> String {
-        let b = match self.bearing {
-            Bearing::North => "N",
-            Bearing::East => "E",
-            Bearing::South => "S",
-            Bearing::West => "W",
-        };
-        format!(
+impl fmt::Display for Rover {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f,
             "{} {} {}",
-            self.coordinates.x_coordinate, self.coordinates.y_coordinate, b
+            self.coordinates.x_coordinate, self.coordinates.y_coordinate, self.bearing
         )
     }
 }
@@ -82,6 +79,18 @@ impl FromStr for Bearing {
             "W" => Ok(Bearing::South),
             _ => Err(String::from("could not parse bearing")),
         }
+    }
+}
+
+impl fmt::Display for Bearing {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b = match self {
+            Bearing::North => "N",
+            Bearing::East => "E",
+            Bearing::South => "S",
+            Bearing::West => "W",
+        };
+        write!(f, "{}", b)
     }
 }
 
