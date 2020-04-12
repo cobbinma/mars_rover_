@@ -57,11 +57,15 @@ impl Config {
         let mut args_iter = args.iter();
         args_iter.next();
 
-        let max_x_grid = args_iter.next()
-            .ok_or("could not read first argument")?.parse()?;
+        let max_x_grid = args_iter
+            .next()
+            .ok_or("could not read first argument")?
+            .parse()?;
 
-        let max_y_grid = args_iter.next()
-            .ok_or("could not read second argument")?.parse()?;
+        let max_y_grid = args_iter
+            .next()
+            .ok_or("could not read second argument")?
+            .parse()?;
 
         let mut instructions = vec![];
 
@@ -70,15 +74,18 @@ impl Config {
 
             let starting_x = iter.next().ok_or("starting x not given")?.parse()?;
             let starting_y = iter.next().ok_or("starting y not given")?.parse()?;
-            let bearing = iter.next()
-                .ok_or("no bearing given")?
-                .parse()?;
-            let commands = parse_commands(iter.next()
-                .ok_or("could not get commands")?.chars().collect())?;
+            let bearing = iter.next().ok_or("no bearing given")?.parse()?;
+            let commands = iter
+                .next()
+                .ok_or("no commands given")?
+                .chars()
+                .map(Command::new)
+                .filter_map(Result::ok)
+                .collect();
             instructions.push(RoverInstructions::new(
                 starting_x, starting_y, bearing, commands,
             ))
-        };
+        }
 
         Ok(Config {
             max_x_grid,
@@ -119,24 +126,14 @@ enum Command {
     LeftTurn,
 }
 
-fn parse_commands(chars: Vec<char>) -> Result<Vec<Command>, ParseError> {
-    if chars.is_empty() {
-        return Err(ParseError::new("can't parse empty commands"));
-    };
-    let commands = chars
-        .into_iter()
-        .map(map_command)
-        .map(|x| x.unwrap())
-        .collect();
-    Ok(commands)
-}
-
-fn map_command(c: char) -> Result<Command, ParseError> {
-    match c {
-        'M' => Ok(Command::MoveForward),
-        'R' => Ok(Command::RightTurn),
-        'L' => Ok(Command::LeftTurn),
-        _ => Err(ParseError::new("could not parse command")),
+impl Command {
+    fn new(c: char) -> Result<Command, String> {
+        match c {
+            'M' => Ok(Command::MoveForward),
+            'R' => Ok(Command::RightTurn),
+            'L' => Ok(Command::LeftTurn),
+            _ => Err(String::from("could not parse command")),
+        }
     }
 }
 
