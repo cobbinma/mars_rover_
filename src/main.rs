@@ -12,7 +12,7 @@ fn main() {
         Err(e) => {
             eprintln!("could not create config : {}", e);
             std::process::exit(1)
-        },
+        }
     };
 
     let rovers = match mars_rover::deploy_rovers(config) {
