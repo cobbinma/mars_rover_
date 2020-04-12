@@ -1,3 +1,6 @@
+use std::str::FromStr;
+use core::fmt;
+
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub struct Rover {
     bearing: Bearing,
@@ -5,8 +8,14 @@ pub struct Rover {
 }
 
 impl Rover {
-    pub fn new(x_coordinate: u64, y_coordinate:u64, bearing: Bearing) -> Rover {
-        Rover{bearing, coordinates: Coordinates{x_coordinate, y_coordinate}}
+    pub fn new(x_coordinate: u64, y_coordinate: u64, bearing: Bearing) -> Rover {
+        Rover {
+            bearing,
+            coordinates: Coordinates {
+                x_coordinate,
+                y_coordinate,
+            },
+        }
     }
 
     pub fn move_rover(&mut self) {
@@ -40,15 +49,14 @@ impl Rover {
             Bearing::West => self.bearing = Bearing::South,
         }
     }
+}
 
-    pub fn print(&self) -> String {
-        let b = match self.bearing {
-            Bearing::North => "N",
-            Bearing::East => "E",
-            Bearing::South => "S",
-            Bearing::West => "W"
-        };
-        format!("{} {} {}", self.coordinates.x_coordinate, self.coordinates.y_coordinate, b)
+impl fmt::Display for Rover {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f,
+            "{} {} {}",
+            self.coordinates.x_coordinate, self.coordinates.y_coordinate, self.bearing
+        )
     }
 }
 
@@ -60,6 +68,32 @@ pub enum Bearing {
     West,
 }
 
+impl FromStr for Bearing {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "N" => Ok(Bearing::North),
+            "E" => Ok(Bearing::East),
+            "S" => Ok(Bearing::South),
+            "W" => Ok(Bearing::South),
+            _ => Err(String::from("could not parse bearing")),
+        }
+    }
+}
+
+impl fmt::Display for Bearing {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let b = match self {
+            Bearing::North => "N",
+            Bearing::East => "E",
+            Bearing::South => "S",
+            Bearing::West => "W",
+        };
+        write!(f, "{}", b)
+    }
+}
+
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
 pub struct Coordinates {
     pub x_coordinate: u64,
@@ -68,7 +102,10 @@ pub struct Coordinates {
 
 impl Coordinates {
     pub fn new(x_coordinate: u64, y_coordinate: u64) -> Coordinates {
-        Coordinates{x_coordinate, y_coordinate}
+        Coordinates {
+            x_coordinate,
+            y_coordinate,
+        }
     }
 
     pub fn move_forward(&mut self, bearing: Bearing) {
@@ -91,10 +128,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(0, 1, Bearing::North),
-            rover
-        );
+        assert_eq!(Rover::new(0, 1, Bearing::North), rover);
     }
 
     #[test]
@@ -103,10 +137,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::South),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::South), rover);
     }
 
     #[test]
@@ -115,10 +146,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(1, 0, Bearing::East),
-            rover
-        );
+        assert_eq!(Rover::new(1, 0, Bearing::East), rover);
     }
 
     #[test]
@@ -127,10 +155,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::West),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::West), rover);
     }
 
     #[test]
@@ -139,10 +164,7 @@ mod tests {
 
         rover.turn_right();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::East),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::East), rover);
     }
 
     #[test]
@@ -151,10 +173,7 @@ mod tests {
 
         rover.turn_left();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::West),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::West), rover);
     }
 
     #[test]
@@ -163,14 +182,8 @@ mod tests {
 
         let planned_coordinates = rover.get_planned_move();
 
-        assert_eq!(
-            Coordinates::new(0, 1),
-            planned_coordinates
-        );
+        assert_eq!(Coordinates::new(0, 1), planned_coordinates);
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::North),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::North), rover);
     }
 }
