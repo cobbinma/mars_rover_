@@ -22,13 +22,13 @@ pub fn deploy_rovers(config: Config) -> Result<Vec<rover::Rover>, Box<dyn Error>
 
         for command in &instruction.commands {
             match command {
-                Command::LeftTurn => rover.turn_left(),
-                Command::RightTurn => rover.turn_right(),
+                Command::LeftTurn => rover.execute_command(command),
+                Command::RightTurn => rover.execute_command(command),
                 Command::MoveForward => {
-                    let planned_coordinates = rover.get_planned_move();
+                    let planned_coordinates = rover.planned_move();
                     plateau.can_rover_move(&planned_coordinates)?;
-                    plateau.update_rover_position(rover.get_coordinates(), &planned_coordinates)?;
-                    rover.move_rover();
+                    plateau.update_rover_position(rover.coordinates(), &planned_coordinates)?;
+                    rover.execute_command(command);
                 }
             }
         }
@@ -120,7 +120,7 @@ impl RoverInstructions {
 }
 
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
-enum Command {
+pub enum Command {
     MoveForward,
     RightTurn,
     LeftTurn,
