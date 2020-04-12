@@ -53,25 +53,32 @@ impl Config {
                 "can't have less than 6 arguments",
             )));
         };
-        let max_x_grid = args[1].parse::<u64>()?;
-        let max_y_grid = args[2].parse::<u64>()?;
+
+        let mut args_iter = args.iter();
+        args_iter.next();
+
+        let max_x_grid = args_iter.next()
+            .ok_or("could not read first argument")?.parse()?;
+
+        let max_y_grid = args_iter.next()
+            .ok_or("could not read second argument")?.parse()?;
 
         let mut instructions = vec![];
 
-        for i in (3..args.len()).step_by(4) {
-            let starting_x = args[i].parse()?;
-            let starting_y = args[i + 1].parse()?;
-            let bearing = parse_bearing(
-                args[i + 2]
-                    .chars()
-                    .next()
-                    .ok_or_else(|| Box::new(ParseError::new("could not parse bearing")))?,
-            )?;
-            let commands = parse_commands(args[i + 3].chars().collect())?;
+        for next_rover_args in args_iter.as_slice().chunks_exact(4) {
+            let mut iter = next_rover_args.iter();
+
+            let starting_x = iter.next().ok_or("starting x not given")?.parse()?;
+            let starting_y = iter.next().ok_or("starting y not given")?.parse()?;
+            let bearing = iter.next()
+                .ok_or("no bearing given")?
+                .parse()?;
+            let commands = parse_commands(iter.next()
+                .ok_or("could not get commands")?.chars().collect())?;
             instructions.push(RoverInstructions::new(
                 starting_x, starting_y, bearing, commands,
             ))
-        }
+        };
 
         Ok(Config {
             max_x_grid,
@@ -110,16 +117,6 @@ enum Command {
     MoveForward,
     RightTurn,
     LeftTurn,
-}
-
-fn parse_bearing(c: char) -> Result<rover::Bearing, ParseError> {
-    match c {
-        'N' => Ok(rover::Bearing::North),
-        'E' => Ok(rover::Bearing::East),
-        'S' => Ok(rover::Bearing::South),
-        'W' => Ok(rover::Bearing::South),
-        _ => Err(ParseError::new("could not parse bearing")),
-    }
 }
 
 fn parse_commands(chars: Vec<char>) -> Result<Vec<Command>, ParseError> {

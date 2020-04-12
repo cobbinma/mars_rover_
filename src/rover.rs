@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub struct Rover {
     bearing: Bearing,
@@ -67,6 +69,20 @@ pub enum Bearing {
     East,
     South,
     West,
+}
+
+impl FromStr for Bearing {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "N" => Ok(Bearing::North),
+            "E" => Ok(Bearing::East),
+            "S" => Ok(Bearing::South),
+            "W" => Ok(Bearing::South),
+            _ => Err(String::from("could not parse bearing")),
+        }
+    }
 }
 
 #[derive(Hash, Eq, PartialEq, Debug, Copy, Clone)]
