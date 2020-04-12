@@ -5,8 +5,14 @@ pub struct Rover {
 }
 
 impl Rover {
-    pub fn new(x_coordinate: u64, y_coordinate:u64, bearing: Bearing) -> Rover {
-        Rover{bearing, coordinates: Coordinates{x_coordinate, y_coordinate}}
+    pub fn new(x_coordinate: u64, y_coordinate: u64, bearing: Bearing) -> Rover {
+        Rover {
+            bearing,
+            coordinates: Coordinates {
+                x_coordinate,
+                y_coordinate,
+            },
+        }
     }
 
     pub fn move_rover(&mut self) {
@@ -46,9 +52,12 @@ impl Rover {
             Bearing::North => "N",
             Bearing::East => "E",
             Bearing::South => "S",
-            Bearing::West => "W"
+            Bearing::West => "W",
         };
-        format!("{} {} {}", self.coordinates.x_coordinate, self.coordinates.y_coordinate, b)
+        format!(
+            "{} {} {}",
+            self.coordinates.x_coordinate, self.coordinates.y_coordinate, b
+        )
     }
 }
 
@@ -68,7 +77,10 @@ pub struct Coordinates {
 
 impl Coordinates {
     pub fn new(x_coordinate: u64, y_coordinate: u64) -> Coordinates {
-        Coordinates{x_coordinate, y_coordinate}
+        Coordinates {
+            x_coordinate,
+            y_coordinate,
+        }
     }
 
     pub fn move_forward(&mut self, bearing: Bearing) {
@@ -91,10 +103,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(0, 1, Bearing::North),
-            rover
-        );
+        assert_eq!(Rover::new(0, 1, Bearing::North), rover);
     }
 
     #[test]
@@ -103,10 +112,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::South),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::South), rover);
     }
 
     #[test]
@@ -115,10 +121,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(1, 0, Bearing::East),
-            rover
-        );
+        assert_eq!(Rover::new(1, 0, Bearing::East), rover);
     }
 
     #[test]
@@ -127,10 +130,7 @@ mod tests {
 
         rover.move_rover();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::West),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::West), rover);
     }
 
     #[test]
@@ -139,10 +139,7 @@ mod tests {
 
         rover.turn_right();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::East),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::East), rover);
     }
 
     #[test]
@@ -151,10 +148,7 @@ mod tests {
 
         rover.turn_left();
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::West),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::West), rover);
     }
 
     #[test]
@@ -163,14 +157,8 @@ mod tests {
 
         let planned_coordinates = rover.get_planned_move();
 
-        assert_eq!(
-            Coordinates::new(0, 1),
-            planned_coordinates
-        );
+        assert_eq!(Coordinates::new(0, 1), planned_coordinates);
 
-        assert_eq!(
-            Rover::new(0, 0, Bearing::North),
-            rover
-        );
+        assert_eq!(Rover::new(0, 0, Bearing::North), rover);
     }
 }

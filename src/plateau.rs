@@ -1,19 +1,23 @@
-use std::collections::HashSet;
-use Vec;
 use crate::rover;
+use core::fmt;
+use std::collections::HashSet;
 use std::error;
 use std::error::Error;
-use core::fmt;
+use Vec;
 
 pub struct Plateau {
     max_x_coordinate: u64,
     max_y_coordinate: u64,
-    rovers: HashSet<rover::Coordinates>
+    rovers: HashSet<rover::Coordinates>,
 }
 
 impl Plateau {
     pub fn new(max_x_coordinate: u64, max_y_coordinate: u64) -> Plateau {
-        Plateau{max_x_coordinate, max_y_coordinate, rovers: HashSet::new()}
+        Plateau {
+            max_x_coordinate,
+            max_y_coordinate,
+            rovers: HashSet::new(),
+        }
     }
 
     pub fn list_rovers(&self) -> Vec<rover::Coordinates> {
@@ -29,11 +33,12 @@ impl Plateau {
     }
 
     fn is_move_inbounds(&self, coordinates: &rover::Coordinates) -> bool {
-        if coordinates.x_coordinate > self.max_x_coordinate || coordinates.y_coordinate > self.max_y_coordinate {
-            return false
+        if coordinates.x_coordinate > self.max_x_coordinate
+            || coordinates.y_coordinate > self.max_y_coordinate
+        {
+            return false;
         }
         true
-
     }
 
     fn is_move_valid(&self, coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
@@ -47,13 +52,16 @@ impl Plateau {
 
     pub fn can_rover_move(&self, coordinates: &rover::Coordinates) -> Result<(), CollisionError> {
         if !self.rovers.contains(coordinates) {
-            return Ok(())
+            return Ok(());
         }
         Err(CollisionError)
     }
 
-    pub fn update_rover_position(&mut self, old_coordinates: &rover::Coordinates,
-                                 new_coordinates: &rover::Coordinates) -> Result<(), Box<dyn Error>> {
+    pub fn update_rover_position(
+        &mut self,
+        old_coordinates: &rover::Coordinates,
+        new_coordinates: &rover::Coordinates,
+    ) -> Result<(), Box<dyn Error>> {
         self.is_move_valid(new_coordinates)?;
         if !self.rovers.remove(old_coordinates) {
             Err(Box::new(NotFound))
@@ -61,7 +69,6 @@ impl Plateau {
             self.rovers.insert(new_coordinates.clone());
             Ok(())
         }
-
     }
 }
 
@@ -137,13 +144,10 @@ mod tests {
 
         match plateau.drop_rover(coordinates) {
             Ok(()) => (),
-            Err(e) => panic!("should be able to drop rover : {}", e)
+            Err(e) => panic!("should be able to drop rover : {}", e),
         };
 
-        assert_eq!(
-            vec![coordinates],
-            plateau.list_rovers()
-        );
+        assert_eq!(vec![coordinates], plateau.list_rovers());
     }
 
     #[test]
@@ -162,10 +166,7 @@ mod tests {
             panic!("should have returned error")
         }
 
-        assert_eq!(
-            vec![coordinates],
-            plateau.list_rovers()
-        );
+        assert_eq!(vec![coordinates], plateau.list_rovers());
     }
 
     #[test]
@@ -176,10 +177,7 @@ mod tests {
 
         let can_move = plateau.can_rover_move(&coordinates);
 
-        assert_eq!(
-            Ok(()),
-            can_move
-        );
+        assert_eq!(Ok(()), can_move);
     }
 
     #[test]
@@ -194,9 +192,7 @@ mod tests {
 
         let can_move = plateau.can_rover_move(&coordinates);
 
-        assert!(
-            can_move.is_err()
-        );
+        assert!(can_move.is_err());
     }
 
     #[test]
@@ -214,10 +210,7 @@ mod tests {
             panic!("should have been able to move rover : {}", e)
         }
 
-        assert_eq!(
-            vec![new_coordinates],
-            plateau.list_rovers()
-        );
+        assert_eq!(vec![new_coordinates], plateau.list_rovers());
     }
 
     #[test]
@@ -241,7 +234,6 @@ mod tests {
             Ok(()) => panic!("should have returned collision error"),
             _ => {}
         }
-
     }
 
     #[test]
@@ -255,7 +247,6 @@ mod tests {
             Ok(()) => panic!("should not be able to update position"),
             _ => {}
         }
-
     }
 
     #[test]
@@ -273,7 +264,6 @@ mod tests {
             Ok(()) => panic!("should have returned out of bounds"),
             _ => {}
         }
-
     }
 
     #[test]
